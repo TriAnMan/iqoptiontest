@@ -9,12 +9,15 @@
 namespace TriAn\IqoTest\core\action;
 
 
+use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 
 interface IAction
 {
     /**
+     * @param Message $request
+     * @param Transaction $transaction
      * @return Message
      */
-    public function run();
+    public function run(Message $request, Transaction $transaction);
 }

@@ -9,6 +9,8 @@
 namespace TriAn\IqoTest\core;
 
 
+use TriAn\IqoTest\core\exception\MessageParseException;
+
 class Message
 {
     public $uuid;
@@ -28,9 +30,12 @@ class Message
      */
     public static function createFromBlob($blob)
     {
+        if (strlen($blob) <= 20) {
+            throw new MessageParseException('Message has no headers');
+        }
         return static::createWithRawBody(
             substr($blob,0, 16),
-            unpack('V', $blob, 16),
+            unpack('V', $blob, 16)[0],
             substr($blob,20)
         );
     }
@@ -39,7 +44,11 @@ class Message
     {
         $message = new static($uuid, $dNum);
         $message->rawBody = $rawBody;
-        $message->body = json_decode($message->rawBody, false);
+        $body = json_decode($message->rawBody, false);
+        if (is_null($body)) {
+            throw new MessageParseException('Can\'t decode message body');
+        }
+        $message->body = $body;
 
         return $message;
     }

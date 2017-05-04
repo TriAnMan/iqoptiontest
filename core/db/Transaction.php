@@ -20,6 +20,7 @@ class Transaction
 
     /**
      * @var \PDOStatement[]
+     * @todo: move to upper level where this cache can be actually helpful
      */
     protected $cache = [];
 
