@@ -24,7 +24,7 @@ class Balance
      * @param int $user
      * @return Balance
      */
-    public static function find(Transaction $transaction, $user)
+    protected static function find(Transaction $transaction, $user)
     {
         return $transaction->execute(
             'SELECT * FROM balance WHERE user = :user',

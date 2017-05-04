@@ -9,6 +9,8 @@
 namespace TriAn\IqoTest\core\db;
 
 
+use TriAn\IqoTest\core\exception\TransactionException;
+
 class Transaction
 {
     /**
@@ -35,12 +37,12 @@ class Transaction
      * @param string $query query
      * @param array $parameters
      * @return \PDOStatement
-     * @throws \Exception
+     * @throws TransactionException
      */
     public function execute($query, array $parameters)
     {
         if ($this->committed) {
-            throw new \Exception('Trying to execute statements on an already committed transaction');
+            throw new TransactionException('Trying to execute statements on an already committed transaction');
         }
 
         $statement = $this->cacheQuery($query);
