@@ -54,10 +54,22 @@ class App
     {
         App::info('Connect to a DB');
         $this->db = App::createObject($this->config['db']['class'], $this->config['db']['param']);
+        $this->db->exec('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
 
         App::info('Init an event queue');
         $this->queue = App::createObject($this->config['queue']['class'], $this->config['queue']['param']);
-        $this->queue->init(function(AMQPMessage $message){});
+        /** @var Processor $processor */
+        $processor = null;
+        $this->queue->init(
+            function(AMQPMessage $inputAmqp) use ($processor){
+                $processor = new Processor($inputAmqp);
+                $processor->processInput();
+            },
+            function () use ($processor){
+                $processor->processAck();
+                $processor = null;
+            }
+        );
 
         App::info('Run main loop');
         $this->queue->run();
