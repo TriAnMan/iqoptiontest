@@ -13,12 +13,12 @@ use TriAn\IqoTest\core\db\dao\Balance;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 
-class Withdraw extends Base
+class Transfer extends Base
 {
     public function process(Message $request, Transaction $transaction)
     {
         $action = $request->getBody();
-        $action->balance = Balance::withdraw($transaction, $action->user, $action->amount)->balance;
+        $action->balances = Balance::transfer($transaction, $action->fromUser, $action->toUser, $action->amount);
         $action->result = 'ok';
         return (new Message($request->uuid, 0))->setBody($action);
     }

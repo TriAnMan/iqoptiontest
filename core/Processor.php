@@ -13,8 +13,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 use TriAn\IqoTest\core\action\Duplicate;
 use TriAn\IqoTest\core\action\IAction;
 use TriAn\IqoTest\core\db\Transaction;
-use TriAn\IqoTest\core\exception\MessageHashMismatch;
-use TriAn\IqoTest\core\exception\ProcessedDuplicate;
 
 class Processor
 {

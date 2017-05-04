@@ -9,6 +9,7 @@
 namespace TriAn\IqoTest\core\action;
 
 
+use TriAn\IqoTest\core\db\dao\Balance;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 
@@ -16,6 +17,9 @@ class Enroll extends Base
 {
     public function process(Message $request, Transaction $transaction)
     {
-        // TODO: Implement process() method.
+        $action = $request->getBody();
+        $action->balance = Balance::enroll($transaction, $action->user, $action->amount)->balance;
+        $action->result = 'ok';
+        return (new Message($request->uuid, 0))->setBody($action);
     }
 }

@@ -16,7 +16,7 @@ class Transaction
      */
     protected $connection;
 
-    protected $commited = false;
+    protected $committed = false;
 
     /**
      * @var \PDOStatement[]
@@ -32,14 +32,14 @@ class Transaction
 
     /**
      * Executes SQL query in a transaction
-     * @param $query string query
+     * @param string $query query
      * @param array $parameters
      * @return \PDOStatement
      * @throws \Exception
      */
     public function execute($query, array $parameters)
     {
-        if ($this->commited) {
+        if ($this->committed) {
             throw new \Exception('Trying to execute statements on an already committed transaction');
         }
 
@@ -51,7 +51,7 @@ class Transaction
 
     /**
      * Prepare and cache a query
-     * @param $query string
+     * @param string $query
      * @return \PDOStatement
      */
     protected function cacheQuery($query)
@@ -69,6 +69,6 @@ class Transaction
     public function commit()
     {
         $this->connection->commit();
-        $this->commited = true;
+        $this->committed = true;
     }
 }

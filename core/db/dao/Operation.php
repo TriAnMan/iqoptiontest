@@ -25,8 +25,8 @@ class Operation
 {
     /**
      * @param Transaction $transaction
-     * @param $uuid string
-     * @return static
+     * @param string $uuid
+     * @return Operation
      */
     public static function find(Transaction $transaction, $uuid)
     {
@@ -47,16 +47,15 @@ class Operation
     public static function create(Transaction $transaction, Message $request, Message $response)
     {
         $transaction->execute(
-            <<<SQL
-INSERT INTO operation 
-(uuid, input_dup_num, output_dup_num, completed, raw_body) 
-VALUE 
-(:uuid, :input_dup_num, 0, UTC_TIMESTAMP(), :raw_body)
-SQL
-            ,
+            'INSERT INTO operation 
+                (uuid, input_dup_num, output_dup_num, completed, raw_body) 
+                VALUE 
+                (:uuid, :input_dup_num, :output_dup_num, UTC_TIMESTAMP(), :raw_body)
+            ',
             [
                 ':uuid' => $response->uuid,
                 ':input_dup_num' => $request->dNum,
+                ':output_dup_num' => $response->dNum,
                 ':raw_body' => $response->getRawBody(),
             ]
         );

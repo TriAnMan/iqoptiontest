@@ -77,7 +77,7 @@ class App
 
     /**
      * Log an info message
-     * @param $message string
+     * @param string $message
      */
     public static function info($message)
     {
@@ -87,7 +87,7 @@ class App
 
     /**
      * Log a warning message
-     * @param $message string
+     * @param string $message
      */
     public static function warn($message)
     {
@@ -101,8 +101,8 @@ class App
      * Workaround for php5.6
      * It can't create an object from an array member
      *
-     * @param $class string fully qualified class name
-     * @param $parameters array constructor parameters
+     * @param string $class fully qualified class name
+     * @param array $parameters constructor parameters
      * @return object
      */
     public static function createObject($class, $parameters = [])

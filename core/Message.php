@@ -25,7 +25,7 @@ class Message
     }
 
     /**
-     * @param $blob string binary data to create a message
+     * @param string $blob binary data to create a message
      * @return static
      */
     public static function createFromBlob($blob)
