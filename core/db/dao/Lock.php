@@ -10,6 +10,7 @@ namespace TriAn\IqoTest\core\db\dao;
 
 
 use TriAn\IqoTest\core\db\Transaction;
+use TriAn\IqoTest\core\exception\managed\AbsentLock;
 use TriAn\IqoTest\core\exception\LockNotFound;
 
 /**
@@ -27,10 +28,15 @@ class Lock
      */
     protected static function find(Transaction $transaction, $operationUuid)
     {
-        return $transaction->execute(
+        $lock = $transaction->execute(
             'SELECT * FROM `lock` WHERE operation_uuid = :operation_uuid FOR UPDATE',
             [':operation_uuid' => $operationUuid]
         )->fetchObject(static::class);
+
+        if (!$lock) {
+            throw new AbsentLock();
+        }
+        return $lock;
     }
 
 

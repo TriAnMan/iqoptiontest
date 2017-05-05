@@ -10,12 +10,11 @@ namespace TriAn\IqoTest\core;
 
 
 use PhpAmqpLib\Message\AMQPMessage;
-use TriAn\IqoTest\core\action\BalanceError;
+use TriAn\IqoTest\core\action\Error;
 use TriAn\IqoTest\core\action\Duplicate;
 use TriAn\IqoTest\core\action\IAction;
-use TriAn\IqoTest\core\db\dao\Balance;
 use TriAn\IqoTest\core\db\Transaction;
-use TriAn\IqoTest\core\exception\BalanceShortage;
+use TriAn\IqoTest\core\exception\managed\HandledException;
 
 class Processor
 {
@@ -38,9 +37,9 @@ class Processor
         if (!$response) {
             try {
                 $response = $this->processRequest($request, $transaction);
-            } catch (BalanceShortage $ex) {
+            } catch (HandledException $exception) {
                 $transaction->rollBack();
-                $response = $this->processBalanceError($request, $transaction, $ex->getBalance());
+                $response = $this->processError($request, $exception);
             }
         }
 
@@ -74,19 +73,9 @@ class Processor
         return (new Duplicate())->run($request, $transaction);
     }
 
-    /**
-     * Hack to handle error messages
-     * @todo refactor this thing
-     * @param Message $request
-     * @param Transaction $transaction
-     * @param Balance $balance
-     * @return Message
-     */
-    protected function processBalanceError(Message $request, Transaction $transaction, Balance $balance)
+    protected function processError(Message $request, HandledException $exception)
     {
-        $response = $request->getBody();
-        $response->balances = [$balance];
-        $response->result = 'error';
-        return (new BalanceError())->run($response, $transaction);
+        $response = $exception->generateResponse($request);
+        return (new Error())->run($response, null);
     }
 }

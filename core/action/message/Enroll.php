@@ -6,9 +6,10 @@
  * Time: 19:56
  */
 
-namespace TriAn\IqoTest\core\action;
+namespace TriAn\IqoTest\core\action\message;
 
 
+use TriAn\IqoTest\core\action\Base;
 use TriAn\IqoTest\core\db\dao\Balance;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;

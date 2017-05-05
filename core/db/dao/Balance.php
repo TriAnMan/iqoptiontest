@@ -10,7 +10,7 @@ namespace TriAn\IqoTest\core\db\dao;
 
 
 use TriAn\IqoTest\core\db\Transaction;
-use TriAn\IqoTest\core\exception\BalanceShortage;
+use TriAn\IqoTest\core\exception\managed\BalanceShortage;
 use TriAn\IqoTest\core\exception\TransferException;
 use TriAn\IqoTest\core\exception\DBException;
 

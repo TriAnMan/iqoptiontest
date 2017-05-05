@@ -12,7 +12,7 @@ namespace TriAn\IqoTest\core\action;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 
-class BalanceError extends Base
+class Error extends Base
 {
     /**
      * @param Message $response
