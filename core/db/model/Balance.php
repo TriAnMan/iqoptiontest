@@ -6,7 +6,7 @@
  * Time: 19:47
  */
 
-namespace TriAn\IqoTest\core\db\dao;
+namespace TriAn\IqoTest\core\db\model;
 
 
 use TriAn\IqoTest\core\db\Transaction;

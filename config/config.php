@@ -2,7 +2,7 @@
 
 return [
     'db' => [
-        'class' => \PDO::class,
+        'class' => \TriAn\IqoTest\core\db\DAO::class,
         'param' => [
             'mysql:host=localhost;dbname=iq_test;charset=utf8',
             'root',

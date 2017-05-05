@@ -8,7 +8,7 @@
 
 namespace TriAn\IqoTest\core\exception\managed;
 
-use TriAn\IqoTest\core\db\dao\Balance;
+use TriAn\IqoTest\core\db\model\Balance;
 use TriAn\IqoTest\core\Message;
 
 class BalanceShortage extends HandledException

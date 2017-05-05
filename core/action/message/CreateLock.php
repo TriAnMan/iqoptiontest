@@ -10,7 +10,7 @@ namespace TriAn\IqoTest\core\action\message;
 
 
 use TriAn\IqoTest\core\action\Base;
-use TriAn\IqoTest\core\db\dao\Lock;
+use TriAn\IqoTest\core\db\model\Lock;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 

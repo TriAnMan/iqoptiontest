@@ -9,7 +9,7 @@
 namespace TriAn\IqoTest\core\action;
 
 
-use TriAn\IqoTest\core\db\dao\Operation;
+use TriAn\IqoTest\core\db\model\Operation;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\Message;
 
