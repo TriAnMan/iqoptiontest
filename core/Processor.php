@@ -10,9 +10,12 @@ namespace TriAn\IqoTest\core;
 
 
 use PhpAmqpLib\Message\AMQPMessage;
+use TriAn\IqoTest\core\action\BalanceError;
 use TriAn\IqoTest\core\action\Duplicate;
 use TriAn\IqoTest\core\action\IAction;
+use TriAn\IqoTest\core\db\dao\Balance;
 use TriAn\IqoTest\core\db\Transaction;
+use TriAn\IqoTest\core\exception\BalanceShortage;
 
 class Processor
 {
@@ -33,7 +36,12 @@ class Processor
 
         $response = $this->processDuplicate($request, $transaction);
         if (!$response) {
-            $response = $this->processRequest($request, $transaction);
+            try {
+                $response = $this->processRequest($request, $transaction);
+            } catch (BalanceShortage $ex) {
+                $transaction->rollBack();
+                $response = $this->processBalanceError($request, $transaction, $ex->getBalance());
+            }
         }
 
         $transaction->commit();
@@ -64,5 +72,21 @@ class Processor
     protected function processDuplicate(Message $request, Transaction $transaction)
     {
         return (new Duplicate())->run($request, $transaction);
+    }
+
+    /**
+     * Hack to handle error messages
+     * @todo refactor this thing
+     * @param Message $request
+     * @param Transaction $transaction
+     * @param Balance $balance
+     * @return Message
+     */
+    protected function processBalanceError(Message $request, Transaction $transaction, Balance $balance)
+    {
+        $response = $request->getBody();
+        $response->balances = [$balance];
+        $response->result = 'error';
+        return (new BalanceError())->run($response, $transaction);
     }
 }

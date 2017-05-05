@@ -9,6 +9,7 @@
 namespace TriAn\IqoTest\core\db;
 
 
+use TriAn\IqoTest\core\exception\DBException;
 use TriAn\IqoTest\core\exception\TransactionException;
 
 class Transaction
@@ -18,7 +19,7 @@ class Transaction
      */
     protected $connection;
 
-    protected $committed = false;
+    protected $ended = false;
 
     /**
      * @var \PDOStatement[]
@@ -29,7 +30,9 @@ class Transaction
     public function __construct(\PDO $connection)
     {
         $this->connection = $connection;
-        $this->connection->beginTransaction();
+        if (false === $this->connection->beginTransaction()) {
+            throw new DBException(...$this->connection->errorInfo());
+        }
     }
 
     /**
@@ -41,12 +44,14 @@ class Transaction
      */
     public function execute($query, array $parameters)
     {
-        if ($this->committed) {
-            throw new TransactionException('Trying to execute statements on an already committed transaction');
+        if ($this->ended) {
+            throw new TransactionException('Trying to execute statements on an ended transaction');
         }
 
         $statement = $this->cacheQuery($query);
-        $statement->execute($parameters);
+        if (false === $statement->execute($parameters)) {
+            throw new DBException(...$statement->errorInfo());
+        }
 
         return $statement;
     }
@@ -70,7 +75,23 @@ class Transaction
 
     public function commit()
     {
-        $this->connection->commit();
-        $this->committed = true;
+        if ($this->ended) {
+            return;
+        }
+        if (false === $this->connection->commit()) {
+            throw new DBException(...$this->connection->errorInfo());
+        }
+        $this->ended = true;
+    }
+
+    public function rollBack()
+    {
+        if ($this->ended) {
+            return;
+        }
+        if (false === $this->connection->rollBack()) {
+            throw new DBException(...$this->connection->errorInfo());
+        }
+        $this->ended = true;
     }
 }

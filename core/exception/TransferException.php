@@ -9,7 +9,7 @@
 namespace TriAn\IqoTest\core\exception;
 
 
-class BalanceException extends \UnexpectedValueException
+class TransferException extends \UnexpectedValueException
 {
 
 }

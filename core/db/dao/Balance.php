@@ -10,7 +10,9 @@ namespace TriAn\IqoTest\core\db\dao;
 
 
 use TriAn\IqoTest\core\db\Transaction;
-use TriAn\IqoTest\core\exception\BalanceException;
+use TriAn\IqoTest\core\exception\BalanceShortage;
+use TriAn\IqoTest\core\exception\TransferException;
+use TriAn\IqoTest\core\exception\DBException;
 
 /**
  * Class Balance
@@ -40,10 +42,18 @@ class Balance
      */
     public static function withdraw(Transaction $transaction, $user, $amount)
     {
-        $transaction->execute(
-            'UPDATE balance SET balance = balance - :amount WHERE user = :user',
-            [':amount' => $amount, ':user' => $user]
-        );
+        try {
+            $transaction->execute(
+                'UPDATE balance SET balance = balance - :amount WHERE user = :user',
+                [':amount' => $amount, ':user' => $user]
+            );
+        } catch (DBException $ex) {
+            if ($ex->getCode() == 22003) {
+                //User has insufficient funds
+                throw new BalanceShortage(static::find($transaction, $user));
+            }
+            throw $ex;
+        }
         return static::find($transaction, $user);
     }
 
@@ -73,7 +83,7 @@ class Balance
     public static function transfer(Transaction $transaction, $fromUser, $toUser, $amount)
     {
         if ($fromUser === $toUser) {
-            throw new BalanceException('Can\'t transfer money between equal accounts');
+            throw new TransferException('Can\'t transfer money between equal accounts');
         }
 
         $balances = [];
