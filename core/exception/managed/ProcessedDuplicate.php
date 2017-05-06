@@ -6,7 +6,7 @@
  * Time: 23:28
  */
 
-namespace TriAn\IqoTest\core\exception;
+namespace TriAn\IqoTest\core\exception\managed;
 
 
 class ProcessedDuplicate extends \LogicException

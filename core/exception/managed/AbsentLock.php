@@ -11,7 +11,7 @@ namespace TriAn\IqoTest\core\exception\managed;
 
 use TriAn\IqoTest\core\Message;
 
-class AbsentLock extends HandledException
+class AbsentLock extends ReportableException
 {
     /**
      * @param Message $request

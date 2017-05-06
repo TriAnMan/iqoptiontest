@@ -14,8 +14,8 @@ use TriAn\IqoTest\core\action\Error;
 use TriAn\IqoTest\core\action\Duplicate;
 use TriAn\IqoTest\core\action\IAction;
 use TriAn\IqoTest\core\db\Transaction;
-use TriAn\IqoTest\core\exception\managed\HandledException;
-use TriAn\IqoTest\core\exception\ProcessedDuplicate;
+use TriAn\IqoTest\core\exception\managed\ReportableException;
+use TriAn\IqoTest\core\exception\managed\ProcessedDuplicate;
 
 class Processor
 {
@@ -46,7 +46,7 @@ class Processor
         if (!$response) {
             try {
                 $response = $this->processRequest($request, $transaction);
-            } catch (HandledException $exception) {
+            } catch (ReportableException $exception) {
                 $transaction->rollBack();
                 $response = $this->processError($request, $exception);
             }
@@ -82,7 +82,7 @@ class Processor
         return (new Duplicate())->run($request, $transaction);
     }
 
-    protected function processError(Message $request, HandledException $exception)
+    protected function processError(Message $request, ReportableException $exception)
     {
         $response = $exception->generateResponse($request);
         return (new Error())->run($response, null);

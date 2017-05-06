@@ -11,7 +11,7 @@ namespace TriAn\IqoTest\core\exception\managed;
 
 use TriAn\IqoTest\core\Message;
 
-abstract class HandledException extends \UnexpectedValueException
+abstract class ReportableException extends \UnexpectedValueException
 {
     /**
      * @param Message $request
