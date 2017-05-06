@@ -32,6 +32,8 @@ class Processor
     public function processInput()
     {
         $request = Message::createFromBlob($this->inputAmqp->getBody());
+        App::info("Input message: [uuid: " . bin2hex($request->uuid) . ", dNum: {$request->dNum}, body: " . $request->getRawBody() . "]");
+
         $transaction = new Transaction(App::$instance->db);
 
         try {
@@ -60,6 +62,7 @@ class Processor
 
     protected function sendResponse(Message $response)
     {
+        App::info("Output message: [uuid: " . bin2hex($response->uuid) . ", dNum: {$response->dNum}, body: " . $response->getRawBody() . "]");
         App::$instance->queue->send($response->getBlob());
     }
 
