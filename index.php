@@ -7,15 +7,17 @@
  */
 ini_set('display_errors', 0);
 if (extension_loaded('xdebug')) {
-    xdebug_disable(); //Doesn't actually disable xdebug but prevent if from showing stack traces
+    xdebug_disable(); //Doesn't actually disable xdebug but prevent if from doubling stack traces
 }
 
+/*
+ * Stop PHP also for E_NOTICE, E_WARNING, etc.
+ */
 function convertErrors($errno , $errstr, $errfile, $errline) {
-    print "ERROR: $errstr in $errfile on line $errline\n\n";
+    print "PHP error: $errstr in $errfile on line $errline\n\n";
     debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    trigger_error('Trigger error', E_USER_ERROR);
+    exit($errno);
 }
-
 set_error_handler('convertErrors');
 
 require(__DIR__ . '/vendor/autoload.php');

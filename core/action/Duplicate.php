@@ -9,7 +9,6 @@
 namespace TriAn\IqoTest\core\action;
 
 
-use TriAn\IqoTest\core\App;
 use TriAn\IqoTest\core\db\model\Operation;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\exception\MessageHashMismatch;
@@ -25,10 +24,9 @@ class Duplicate implements IAction
      */
     public function run(Message $request, Transaction $transaction)
     {
-        try {
-            $duplicate = $this->checkDuplicate($request, $transaction);
-        } catch (ProcessedDuplicate $ex) {
-            App::warn('Stop propagation of an already processed duplicate message' . bin2hex($request->uuid));
+        $duplicate = $this->checkDuplicate($request, $transaction);
+
+        if (!$duplicate) {
             return null;
         }
 
@@ -54,7 +52,7 @@ class Duplicate implements IAction
             return null;
         }
 
-        if (md5($request->getRawBody()) !== md5($duplicate->raw_body)) {
+        if (md5($request->getRawBody(), true) !== $duplicate->input_md5) {
             throw new MessageHashMismatch('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
         }
 

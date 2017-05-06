@@ -16,6 +16,7 @@ use TriAn\IqoTest\core\Message;
  * Class Operation
  * @property string $uuid message id
  * @property int $input_dup_num duplicate number of input message
+ * @property string $input_md5 hash of an input message body
  * @property int $output_dup_num number of duplicate messages sent
  * @property string $completed operation completion DateTime
  * @property string $raw_body
@@ -23,6 +24,21 @@ use TriAn\IqoTest\core\Message;
  */
 class Operation
 {
+    /**
+     * Dirty hack!
+     * Used only for \PDO::fetchObject()
+     * @see http://php.net/manual/en/pdostatement.fetchobject.php
+     */
+    public function __construct()
+    {
+        if (isset($this->input_dup_num)) {
+            $this->input_dup_num = intval($this->input_dup_num);
+        }
+        if (isset($this->output_dup_num)) {
+            $this->output_dup_num = intval($this->output_dup_num);
+        }
+    }
+
     /**
      * @param Transaction $transaction
      * @param string $uuid
@@ -48,13 +64,14 @@ class Operation
     {
         $transaction->execute(
             'INSERT INTO operation 
-                (uuid, input_dup_num, output_dup_num, completed, raw_body) 
+                (uuid, input_dup_num, input_md5, output_dup_num, completed, raw_body) 
                 VALUE 
-                (:uuid, :input_dup_num, :output_dup_num, UTC_TIMESTAMP(), :raw_body)
+                (:uuid, :input_dup_num, :input_md5, :output_dup_num, UTC_TIMESTAMP(), :raw_body)
             ',
             [
                 ':uuid' => $response->uuid,
                 ':input_dup_num' => $request->dNum,
+                ':input_md5' => md5($request->getRawBody(), true),
                 ':output_dup_num' => $response->dNum,
                 ':raw_body' => $response->getRawBody(),
             ]

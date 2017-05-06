@@ -22,6 +22,21 @@ use TriAn\IqoTest\core\exception\LockNotFound;
 class Lock
 {
     /**
+     * Dirty hack!
+     * Used only for \PDO::fetchObject()
+     * @see http://php.net/manual/en/pdostatement.fetchobject.php
+     */
+    public function __construct()
+    {
+        if (isset($this->operation_uuid)) {
+            $this->operation_uuid = intval($this->operation_uuid);
+        }
+        if (isset($this->user)) {
+            $this->user = intval($this->user);
+        }
+    }
+
+    /**
      * @param Transaction $transaction
      * @param string $operationUuid
      * @return Lock

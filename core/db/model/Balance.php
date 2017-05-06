@@ -22,6 +22,18 @@ use TriAn\IqoTest\core\exception\DBException;
 class Balance
 {
     /**
+     * Dirty hack!
+     * Used only for \PDO::fetchObject()
+     * @see http://php.net/manual/en/pdostatement.fetchobject.php
+     */
+    public function __construct()
+    {
+        if (isset($this->user)) {
+            $this->user = intval($this->user);
+        }
+    }
+
+    /**
      * @param Transaction $transaction
      * @param int $user
      * @return Balance

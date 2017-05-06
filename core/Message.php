@@ -35,7 +35,7 @@ class Message
         }
         return static::createWithRawBody(
             substr($blob,0, 16),
-            unpack('V', $blob, 16)[0],
+            unpack('V', substr($blob,16, 4))[1],
             substr($blob,20)
         );
     }

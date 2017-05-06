@@ -62,7 +62,10 @@ class Queue
 
     public function send($blob)
     {
-        $this->channel->basic_publish($blob, '', $this->config['outbound_queue'], true);
+        $msg = new AMQPMessage($blob,
+            ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]
+        );
+        $this->channel->basic_publish($msg, '', $this->config['outbound_queue'], true);
         $this->channel->wait_for_pending_acks_returns();
     }
 

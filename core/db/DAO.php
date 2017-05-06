@@ -23,7 +23,7 @@ class DAO extends \PDO
      */
     public function cacheQuery($query)
     {
-        if (isset($query, $this->cache)) {
+        if (isset($this->cache[$query])) {
             return $this->cache[$query];
         }
 

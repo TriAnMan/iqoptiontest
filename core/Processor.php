@@ -15,6 +15,7 @@ use TriAn\IqoTest\core\action\Duplicate;
 use TriAn\IqoTest\core\action\IAction;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\exception\managed\HandledException;
+use TriAn\IqoTest\core\exception\ProcessedDuplicate;
 
 class Processor
 {
@@ -33,7 +34,15 @@ class Processor
         $request = Message::createFromBlob($this->inputAmqp->getBody());
         $transaction = new Transaction(App::$instance->db);
 
-        $response = $this->processDuplicate($request, $transaction);
+        try {
+            $response = $this->processDuplicate($request, $transaction);
+        } catch (ProcessedDuplicate $ex) {
+            App::warn('Stop propagation of an already processed duplicate message ' . bin2hex($request->uuid));
+            $transaction->rollBack();
+            $this->processAck();
+            return;
+        }
+
         if (!$response) {
             try {
                 $response = $this->processRequest($request, $transaction);

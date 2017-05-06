@@ -10,6 +10,7 @@ namespace TriAn\IqoTest\core;
 
 
 use PhpAmqpLib\Message\AMQPMessage;
+use TriAn\IqoTest\core\db\DAO;
 
 class App
 {
@@ -21,7 +22,7 @@ class App
     public static $instance;
 
     /**
-     * @var \PDO
+     * @var DAO
      */
     public $db;
 
@@ -61,11 +62,11 @@ class App
         /** @var Processor $processor */
         $processor = null;
         $this->queue->init(
-            function(AMQPMessage $inputAmqp) use ($processor){
+            function(AMQPMessage $inputAmqp) use (&$processor){
                 $processor = new Processor($inputAmqp);
                 $processor->processInput();
             },
-            function () use ($processor){
+            function () use (&$processor){
                 $processor->processAck();
                 $processor = null;
             }
