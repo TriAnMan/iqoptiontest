@@ -34,6 +34,8 @@ class Processor
         $request = Message::createFromBlob($this->inputAmqp->getBody());
         App::info("Input message: [uuid: " . bin2hex($request->uuid) . ", dNum: {$request->dNum}, body: " . $request->getRawBody() . "]");
 
+        $request->validate(new Validator());
+
         $transaction = new Transaction(App::$instance->db);
 
         try {
@@ -50,7 +52,8 @@ class Processor
                 $response = $this->processRequest($request, $transaction);
             } catch (ReportableException $exception) {
                 $transaction->rollBack();
-                $response = $this->processError($request, $exception);
+                $transaction = new Transaction(App::$instance->db);
+                $response = $this->processError($request, $transaction, $exception);
             }
         }
 
@@ -85,9 +88,8 @@ class Processor
         return (new Duplicate())->run($request, $transaction);
     }
 
-    protected function processError(Message $request, ReportableException $exception)
+    protected function processError(Message $request, Transaction $transaction, ReportableException $exception)
     {
-        $response = $exception->generateResponse($request);
-        return (new Error())->run($response, null);
+        return (new Error())->setException($exception)->run($request, $transaction);
     }
 }

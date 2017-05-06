@@ -15,7 +15,7 @@ abstract class ReportableException extends \UnexpectedValueException
 {
     /**
      * @param Message $request
-     * @return Message response
+     * @return \stdClass response
      */
     abstract public function generateResponse(Message $request);
 }

@@ -10,17 +10,30 @@ namespace TriAn\IqoTest\core\action;
 
 
 use TriAn\IqoTest\core\db\Transaction;
+use TriAn\IqoTest\core\exception\managed\ReportableException;
 use TriAn\IqoTest\core\Message;
 
 class Error extends Base
 {
     /**
-     * @param Message $response
+     * @var ReportableException
+     */
+    protected $exception;
+
+    /**
+     * @param Message $request
      * @param Transaction $transaction
      * @return Message
      */
-    public function process(Message $response, Transaction $transaction)
+    public function process(Message $request, Transaction $transaction)
     {
-        return (new Message($response->uuid, 0))->setBody($response->getBody());
+        $response = $this->exception->generateResponse($request);
+        return (new Message($request->uuid, 0))->setBody($response);
+    }
+
+    public function setException(ReportableException $exception)
+    {
+        $this->exception = $exception;
+        return $this;
     }
 }

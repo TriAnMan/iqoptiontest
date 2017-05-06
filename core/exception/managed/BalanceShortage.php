@@ -23,13 +23,13 @@ class BalanceShortage extends ReportableException
 
     /**
      * @param Message $request
-     * @return Message response
+     * @return \stdClass response
      */
     public function generateResponse(Message $request)
     {
         $response = $request->getBody();
         $response->balances = [$this->balance];
         $response->error = 'insufficient_funds';
-        return (new Message($request->uuid, 0))->setBody($response);
+        return $response;
     }
 }

@@ -53,6 +53,19 @@ class Message
         return $message;
     }
 
+    public function validate(Validator $validator)
+    {
+        $validator->validateWithDefaultSchema($this->body);
+
+        if (!$validator->isValid()) {
+            $message = "JSON does not validate. Violations:\n";
+            foreach ($validator->getErrors() as $error) {
+                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
+            }
+            throw new MessageParseException($message);
+        }
+    }
+
     public function getBlob()
     {
         return $this->uuid . pack('V', $this->dNum) . $this->rawBody;

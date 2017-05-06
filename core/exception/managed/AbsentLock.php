@@ -15,12 +15,12 @@ class AbsentLock extends ReportableException
 {
     /**
      * @param Message $request
-     * @return Message response
+     * @return \stdClass response
      */
     public function generateResponse(Message $request)
     {
         $response = $request->getBody();
         $response->error = 'absent_lock';
-        return (new Message($request->uuid, 0))->setBody($response);
+        return $response;
     }
 }
