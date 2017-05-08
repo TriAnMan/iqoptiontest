@@ -10,15 +10,12 @@ namespace TriAn\IqoTest\tests\functional;
 
 
 use TriAn\IqoTest\core\exception\MessageHashMismatch;
-use TriAn\IqoTest\core\Message;
 use TriAn\IqoTest\tests\FunctionalCase;
 use TriAn\IqoTest\tests\stubs\LoggerStub;
 
 class DuplicateProcessingTest extends FunctionalCase
 {
-    private static $uuid;
-    private static $requestBody;
-    private static $responseBody;
+    protected static $uuid;
 
     public static function setUpBeforeClass()
     {
@@ -31,8 +28,8 @@ class DuplicateProcessingTest extends FunctionalCase
 
     public function testSendMessage()
     {
-        $request = (new Message(static::$uuid, 0))->setBody((object)static::$requestBody);
-        $response = (new Message(static::$uuid, 0))->setBody((object)static::$responseBody);
+        $request = $this->createRequest(static::$uuid, 0);
+        $response = $this->createResponse(static::$uuid, 0);
 
         $this->sendMessage($request->getBlob());
 
@@ -44,8 +41,8 @@ class DuplicateProcessingTest extends FunctionalCase
      */
     public function testCheckAllowedDuplicateProcessing()
     {
-        $request = (new Message(static::$uuid, 0))->setBody((object)static::$requestBody);
-        $response = (new Message(static::$uuid, 1))->setBody((object)static::$responseBody);
+        $request = $this->createRequest(static::$uuid, 0);
+        $response = $this->createResponse(static::$uuid, 1);
 
         $this->sendMessage($request->getBlob());
 
@@ -57,11 +54,11 @@ class DuplicateProcessingTest extends FunctionalCase
      */
     public function testCheckProhibitedDuplicateProcessing()
     {
-        $request = (new Message(static::$uuid, 1))->setBody((object)static::$requestBody);
+        $request = $this->createRequest(static::$uuid, 1);
         $responseStackLen = count($this->getResponseStack());
 
         $this->sendMessage($request->getBlob());
-        
+
         $this->assertLog(
             LoggerStub::LEVEL_WARN,
             'Stop propagation of an already processed duplicate message ' . bin2hex($request->uuid),
@@ -79,10 +76,11 @@ class DuplicateProcessingTest extends FunctionalCase
      */
     public function testFailOnDuplicateBodyMissMatch()
     {
-        $request = (new Message(static::$uuid, 0))->setBody((object)(static::$requestBody + ['other'=>'field']));
+        $request = $this->createRequest(static::$uuid, 0, ['other'=>'field']);
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
+        $this->setTransactionException(MessageHashMismatch::class);
 
         $this->sendMessage($request->getBlob());
     }
@@ -92,10 +90,11 @@ class DuplicateProcessingTest extends FunctionalCase
      */
     public function testFailOnDuplicateBodyMissMatchWithDifferentDNum()
     {
-        $request = (new Message(static::$uuid, 1))->setBody((object)(static::$requestBody + ['other'=>'field']));
+        $request = $this->createRequest(static::$uuid, 1, ['other'=>'field']);
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
+        $this->setTransactionException(MessageHashMismatch::class);
 
         $this->sendMessage($request->getBlob());
     }
