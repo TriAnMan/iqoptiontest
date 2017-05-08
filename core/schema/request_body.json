@@ -25,7 +25,8 @@
           "user": {"$ref": "#/definitions/types/user"},
           "amount": {"$ref": "#/definitions/types/amount"}
         },
-        "required": ["action", "user", "amount"]
+        "required": ["action", "user", "amount"],
+        "additionalProperties": false
       },
       "withdraw": {
         "type": "object",
@@ -34,17 +35,19 @@
           "user": {"$ref": "#/definitions/types/user"},
           "amount": {"$ref": "#/definitions/types/amount"}
         },
-        "required": ["action", "user", "amount"]
+        "required": ["action", "user", "amount"],
+        "additionalProperties": false
       },
       "transfer": {
         "type": "object",
         "properties": {
-        "action": {"type": "string", "enum": ["transfer"]},
-            "fromUser": {"$ref": "#/definitions/types/user"},
-            "toUser": {"$ref": "#/definitions/types/user"},
-            "amount": {"$ref": "#/definitions/types/amount"}
-          },
-        "required": ["action", "fromUser", "toUser", "amount"]
+          "action": {"type": "string", "enum": ["transfer"]},
+          "fromUser": {"$ref": "#/definitions/types/user"},
+          "toUser": {"$ref": "#/definitions/types/user"},
+          "amount": {"$ref": "#/definitions/types/amount"}
+        },
+        "required": ["action", "fromUser", "toUser", "amount"],
+        "additionalProperties": false
       },
       "createLock": {
         "type": "object",
@@ -53,7 +56,8 @@
           "user": {"$ref": "#/definitions/types/user"},
           "amount": {"$ref": "#/definitions/types/amount"}
         },
-        "required": ["action", "user", "amount"]
+        "required": ["action", "user", "amount"],
+        "additionalProperties": false
       },
       "redeemLock": {
         "type": "object",
@@ -61,7 +65,8 @@
           "action": {"type": "string", "enum": ["redeemLock"]},
           "operationUuid": {"$ref": "#/definitions/types/uuid"}
         },
-        "required": ["action", "operationUuid"]
+        "required": ["action", "operationUuid"],
+        "additionalProperties": false
       },
       "cancelLock": {
         "type": "object",
@@ -69,7 +74,8 @@
           "action": {"type": "string", "enum": ["cancelLock"]},
           "operationUuid": {"$ref": "#/definitions/types/uuid"}
         },
-        "required": ["action", "operationUuid"]
+        "required": ["action", "operationUuid"],
+        "additionalProperties": false
       }
     }
   },

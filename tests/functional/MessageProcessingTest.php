@@ -114,7 +114,7 @@ class MessageProcessingTest extends FunctionalCase
      */
     public function testFailOnDuplicateBodyMissMatch()
     {
-        $request = $this->createRequest(static::$uuid, 0, ['other'=>'field']);
+        $request = $this->createRequest(static::$uuid, 0, ['amount' => '13.00']);
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
@@ -127,7 +127,7 @@ class MessageProcessingTest extends FunctionalCase
      */
     public function testFailOnDuplicateBodyMissMatchWithDifferentDNum()
     {
-        $request = $this->createRequest(static::$uuid, 1, ['other'=>'field']);
+        $request = $this->createRequest(static::$uuid, 1, ['amount' => '13.00']);
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
