@@ -11,6 +11,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 -- Dumping structure for table iq_test.balance
+DROP TABLE IF EXISTS `balance`;
 CREATE TABLE IF NOT EXISTS `balance` (
   `user` bigint(20) unsigned NOT NULL,
   `balance` decimal(11,2) unsigned NOT NULL,
@@ -21,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `balance` (
 
 
 -- Dumping structure for table iq_test.lock
+DROP TABLE IF EXISTS `lock`;
 CREATE TABLE IF NOT EXISTS `lock` (
   `operation_uuid` binary(16) NOT NULL,
   `user` bigint(20) unsigned NOT NULL,
@@ -34,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `lock` (
 
 
 -- Dumping structure for table iq_test.operation
+DROP TABLE IF EXISTS `operation`;
 CREATE TABLE IF NOT EXISTS `operation` (
   `uuid` binary(16) NOT NULL,
   `input_dup_num` int(10) unsigned NOT NULL,

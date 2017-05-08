@@ -14,7 +14,7 @@ class Logger
     const LEVEL_INFO = 'info';
     const LEVEL_WARN = 'warn';
 
-    private static function log($level, $message)
+    protected static function log($level, $message)
     {
         $date = \DateTimeImmutable::createFromFormat(
             'U.u T',
