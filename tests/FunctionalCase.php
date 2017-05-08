@@ -25,8 +25,6 @@ class FunctionalCase extends \PHPUnit_Framework_TestCase
      */
     public static $app;
 
-    protected $transactionException = '';
-
     public static function setUpBeforeClass()
     {
         if (!static::$config) {
@@ -42,21 +40,11 @@ class FunctionalCase extends \PHPUnit_Framework_TestCase
         LoggerStub::clean();
     }
 
-    /**
-     * Set expected exception that have interrupted a transaction
-     * @param string $class name of exception
-     */
-    public function setTransactionException($class)
-    {
-        $this->transactionException = $class;
-    }
-
     public function tearDown()
     {
-        if ($this->transactionException && $this->getExpectedException() === $this->transactionException) {
+        if (static::$app->db->inTransaction()) {
             static::$app->db->rollBack();
         }
-        $this->transactionException = '';
     }
 
     protected function sendMessage($blob)
@@ -87,6 +75,18 @@ class FunctionalCase extends \PHPUnit_Framework_TestCase
         $this->assertEquals($logMessage, $msg, 'Got expected log message about ' . $message);
     }
 
+    protected function assertExpectedResponse(Message $expectedResponse)
+    {
+        $actualResponse = Message::createFromBlob($this->getLastResponse());
+        $this->assertEquals($expectedResponse->uuid, $actualResponse->uuid, 'Got expected message uid');
+        $this->assertEquals($expectedResponse->dNum, $actualResponse->dNum, 'Got expected message dNum');
+        $this->assertJsonStringEqualsJsonString(
+            $expectedResponse->getRawBody(),
+            $actualResponse->getRawBody(),
+            'Got expected message body'
+        );
+    }
+
     /**
      * @param $uuid
      * @param $dNum
@@ -110,6 +110,11 @@ class FunctionalCase extends \PHPUnit_Framework_TestCase
     protected function createResponse($uuid, $dNum, array $bodyOverride = [])
     {
         return $this->createMessage($uuid, $dNum, static::$responseBody, $bodyOverride);
+    }
+
+    protected function createResponseError($uuid, $dNum, array $bodyOverride = [])
+    {
+        return $this->createMessage($uuid, $dNum, static::$requestBody, $bodyOverride);
     }
 
 }

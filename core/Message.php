@@ -79,7 +79,7 @@ class Message
     public function setBody(\stdClass $body)
     {
         $this->body = $body;
-        $this->rawBody = json_encode($this->body, JSON_FORCE_OBJECT);
+        $this->rawBody = json_encode($this->body);
         return $this;
     }
 

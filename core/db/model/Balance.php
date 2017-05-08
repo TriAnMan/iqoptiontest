@@ -10,6 +10,7 @@ namespace TriAn\IqoTest\core\db\model;
 
 
 use TriAn\IqoTest\core\db\Transaction;
+use TriAn\IqoTest\core\exception\managed\AbsentUser;
 use TriAn\IqoTest\core\exception\managed\BalanceShortage;
 use TriAn\IqoTest\core\exception\TransferException;
 use TriAn\IqoTest\core\exception\DBException;
@@ -66,7 +67,11 @@ class Balance
             }
             throw $ex;
         }
-        return static::find($transaction, $user);
+        $newBalance = static::find($transaction, $user);
+        if (!$newBalance) {
+            throw new AbsentUser([$user]);
+        }
+        return $newBalance;
     }
 
     /**
@@ -76,6 +81,25 @@ class Balance
      * @return Balance
      */
     public static function enroll(Transaction $transaction, $user, $amount)
+    {
+        $transaction->execute(
+            'UPDATE balance SET balance = balance + :amount WHERE user = :user',
+            [':amount' => $amount, ':user' => $user]
+        );
+        $newBalance = static::find($transaction, $user);
+        if (!$newBalance) {
+            throw new AbsentUser([$user]);
+        }
+        return $newBalance;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @param int $user
+     * @param string $amount
+     * @return Balance
+     */
+    public static function createAndEnroll(Transaction $transaction, $user, $amount)
     {
         $transaction->execute(
             'INSERT INTO balance (user, balance) VALUE (:user, :amount)

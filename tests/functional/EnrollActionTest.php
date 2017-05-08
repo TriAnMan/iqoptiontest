@@ -31,7 +31,7 @@ class EnrollActionTest extends FunctionalCase
 
         $this->sendMessage($request->getBlob());
 
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected response');
+        $this->assertExpectedResponse($response);
     }
 
     /**
@@ -45,7 +45,7 @@ class EnrollActionTest extends FunctionalCase
 
         $this->sendMessage($request->getBlob());
 
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected response');
+        $this->assertExpectedResponse($response);
     }
 
     public function testEnrollTooMuch()
@@ -70,7 +70,7 @@ class EnrollActionTest extends FunctionalCase
 
         $this->sendMessage($request->getBlob());
 
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected response');
+        $this->assertExpectedResponse($response);
     }
 
     /**
@@ -84,7 +84,6 @@ class EnrollActionTest extends FunctionalCase
         $this->expectException(DBException::class);
         $this->expectExceptionCode(22003);
         $this->expectExceptionMessage("ANSI: 22003, driver: 1264 - Out of range value for column 'balance' at row 1");
-        $this->setTransactionException(DBException::class);
 
         $this->sendMessage($request->getBlob());
     }
@@ -100,6 +99,7 @@ class EnrollActionTest extends FunctionalCase
         $response = $this->createResponse($uuid, 0, ['amount' => '0.00', 'balance' => '25.06']);
 
         $this->sendMessage($request->getBlob());
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected response');
+
+        $this->assertExpectedResponse($response);
     }
 }

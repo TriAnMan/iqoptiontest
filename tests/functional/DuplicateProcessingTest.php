@@ -33,7 +33,7 @@ class DuplicateProcessingTest extends FunctionalCase
 
         $this->sendMessage($request->getBlob());
 
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected response');
+        $this->assertExpectedResponse($response);
     }
 
     /**
@@ -46,7 +46,7 @@ class DuplicateProcessingTest extends FunctionalCase
 
         $this->sendMessage($request->getBlob());
 
-        $this->assertEquals($response->getBlob(), $this->getLastResponse(), 'Got expected duplicate response');
+        $this->assertExpectedResponse($response);
     }
 
     /**
@@ -80,7 +80,6 @@ class DuplicateProcessingTest extends FunctionalCase
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
-        $this->setTransactionException(MessageHashMismatch::class);
 
         $this->sendMessage($request->getBlob());
     }
@@ -94,7 +93,6 @@ class DuplicateProcessingTest extends FunctionalCase
 
         $this->expectException(MessageHashMismatch::class);
         $this->expectExceptionMessage('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
-        $this->setTransactionException(MessageHashMismatch::class);
 
         $this->sendMessage($request->getBlob());
     }

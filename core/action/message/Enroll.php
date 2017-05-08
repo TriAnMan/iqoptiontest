@@ -19,7 +19,7 @@ class Enroll extends Base
     public function process(Message $request, Transaction $transaction)
     {
         $action = $request->getBody();
-        $action->balance = Balance::enroll($transaction, $action->user, $action->amount)->balance;
+        $action->balance = Balance::createAndEnroll($transaction, $action->user, $action->amount)->balance;
         $action->result = 'ok';
         return (new Message($request->uuid, 0))->setBody($action);
     }
