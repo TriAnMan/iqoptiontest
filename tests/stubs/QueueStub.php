@@ -6,14 +6,14 @@
  * Time: 1:26
  */
 
-namespace TriAn\IqoTest\tests;
+namespace TriAn\IqoTest\tests\stubs;
 
 
 use TriAn\IqoTest\core\Queue;
 
 class QueueStub extends Queue
 {
-    protected static $result;
+    protected static $responseStack = [];
 
     /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct($config)
@@ -26,15 +26,25 @@ class QueueStub extends Queue
 
     public function send($blob)
     {
-        static::$result = $blob;
+        static::$responseStack[] = $blob;
     }
 
     public function init(callable $inputCallback, callable $ackCallback)
     {
     }
 
-    public static function getResult()
+    public static function getResponseStack()
     {
-        return static::$result;
+        return static::$responseStack;
+    }
+
+    public static function getLastResponse()
+    {
+        return static::$responseStack[count(static::$responseStack) - 1];
+    }
+
+    public static function clean()
+    {
+        static::$responseStack = null;
     }
 }

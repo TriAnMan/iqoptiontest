@@ -10,10 +10,10 @@ return [
         ],
     ],
     'logger' => [
-        'class' => \TriAn\IqoTest\tests\LoggerStub::class,
+        'class' => \TriAn\IqoTest\tests\stubs\LoggerStub::class,
     ],
     'queue' => [
-        'class' => \TriAn\IqoTest\tests\QueueStub::class,
+        'class' => \TriAn\IqoTest\tests\stubs\QueueStub::class,
         'param' => [[]],
     ],
 ];

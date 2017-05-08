@@ -5,8 +5,8 @@
         bootstrap="tests/bootstrap.php"
 >
     <testsuites>
-        <testsuite name="default">
-            <directory>tests</directory>
+        <testsuite name="functional">
+            <directory>tests/functional</directory>
         </testsuite>
     </testsuites>
 </phpunit>
