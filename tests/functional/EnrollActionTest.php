@@ -10,20 +10,19 @@ namespace TriAn\IqoTest\tests\functional;
 
 
 use TriAn\IqoTest\core\exception\DBException;
-use TriAn\IqoTest\core\exception\MessageParseException;
 use TriAn\IqoTest\tests\FunctionalCase;
 
 class EnrollActionTest extends FunctionalCase
 {
     public static function setUpBeforeClass()
     {
-        static::$requestBody = ['action' => 'enroll', 'user' => 2, 'amount' => '12.53'];
+        static::$requestBody = ['action' => 'enroll', 'user' => 10, 'amount' => '12.53'];
         static::$responseBody = static::$requestBody + ['balance' => '12.53', 'result' => 'ok'];
 
         parent::setUpBeforeClass();
     }
 
-    public function testBasicEnroll()
+    public function testEnrollAbsentUserAccount()
     {
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0);
@@ -35,9 +34,9 @@ class EnrollActionTest extends FunctionalCase
     }
 
     /**
-     * @depends testBasicEnroll
+     * @depends testEnrollAbsentUserAccount
      */
-    public function testEnrollMore()
+    public function testEnrollPresentUserAccount()
     {
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0);
@@ -48,33 +47,8 @@ class EnrollActionTest extends FunctionalCase
         $this->assertExpectedResponse($response);
     }
 
-    public function testEnrollTooMuch()
-    {
-        $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['amount' => '1000000000.00']);
-
-        $this->expectException(MessageParseException::class);
-
-        $this->sendMessage($request->getBlob());
-    }
-
     /**
-     * @depends testEnrollMore
-     * @depends testEnrollTooMuch
-     */
-    public function testCheckEverythingOk()
-    {
-        $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['amount' => '0.00']);
-        $response = $this->createResponse($uuid, 0, ['amount' => '0.00', 'balance' => '25.06']);
-
-        $this->sendMessage($request->getBlob());
-
-        $this->assertExpectedResponse($response);
-    }
-
-    /**
-     * @depends testBasicEnroll
+     * @depends testEnrollAbsentUserAccount
      */
     public function testEnrollOverflow()
     {
@@ -89,10 +63,10 @@ class EnrollActionTest extends FunctionalCase
     }
 
     /**
-     * @depends testEnrollMore
+     * @depends testEnrollPresentUserAccount
      * @depends testEnrollOverflow
      */
-    public function testCheckEverythingOk2()
+    public function testNothingIsChangedAfterFail()
     {
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['amount' => '0.00']);

@@ -10,10 +10,12 @@ namespace TriAn\IqoTest\tests\functional;
 
 
 use TriAn\IqoTest\core\exception\MessageHashMismatch;
+use TriAn\IqoTest\core\exception\MessageParseException;
+use TriAn\IqoTest\core\exception\MessageValidationException;
 use TriAn\IqoTest\tests\FunctionalCase;
 use TriAn\IqoTest\tests\stubs\LoggerStub;
 
-class DuplicateProcessingTest extends FunctionalCase
+class MessageProcessingTest extends FunctionalCase
 {
     protected static $uuid;
 
@@ -30,6 +32,42 @@ class DuplicateProcessingTest extends FunctionalCase
     {
         $request = $this->createRequest(static::$uuid, 0);
         $response = $this->createResponse(static::$uuid, 0);
+
+        $this->sendMessage($request->getBlob());
+
+        $this->assertExpectedResponse($response);
+    }
+
+    public function testMessageParsing()
+    {
+        $uuid = openssl_random_pseudo_bytes(15);
+        $request = $this->createRequest($uuid, 0);
+
+        $this->expectException(MessageParseException::class);
+
+        $this->sendMessage($request->getBlob());
+    }
+
+    public function testMessageValidation()
+    {
+        $uuid = openssl_random_pseudo_bytes(16);
+        $request = $this->createRequest($uuid, 0, ['amount' => '1000000000.00']);
+
+        $this->expectException(MessageValidationException::class);
+
+        $this->sendMessage($request->getBlob());
+    }
+
+    /**
+     * @depends testSendMessage
+     * @depends testMessageParsing
+     * @depends testMessageValidation
+     */
+    public function testNothingIsChangedAfterFails()
+    {
+        $uuid = openssl_random_pseudo_bytes(16);
+        $request = $this->createRequest($uuid, 0, ['amount' => '0.00']);
+        $response = $this->createResponse($uuid, 0, ['amount' => '0.00']);
 
         $this->sendMessage($request->getBlob());
 

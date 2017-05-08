@@ -10,6 +10,7 @@ namespace TriAn\IqoTest\core;
 
 
 use TriAn\IqoTest\core\exception\MessageParseException;
+use TriAn\IqoTest\core\exception\MessageValidationException;
 
 class Message
 {
@@ -62,7 +63,7 @@ class Message
             foreach ($validator->getErrors() as $error) {
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
-            throw new MessageParseException($message);
+            throw new MessageValidationException($message);
         }
     }
 

@@ -9,14 +9,13 @@
 namespace TriAn\IqoTest\tests\functional;
 
 
-use TriAn\IqoTest\core\exception\MessageParseException;
 use TriAn\IqoTest\tests\FunctionalCase;
 
 class WithdrawActionTest extends FunctionalCase
 {
     public static function setUpBeforeClass()
     {
-        static::$requestBody = ['action' => 'withdraw', 'user' => 3, 'amount' => '12.00'];
+        static::$requestBody = ['action' => 'withdraw', 'user' => 20, 'amount' => '12.00'];
         static::$responseBody = static::$requestBody + ['balance' => '988.00', 'result' => 'ok'];
 
         parent::setUpBeforeClass();
@@ -25,13 +24,13 @@ class WithdrawActionTest extends FunctionalCase
     public function testAbsentUserWithdraw()
     {
         $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['user' => 4]);
+        $request = $this->createRequest($uuid, 0, ['user' => 21]);
         $response = $this->createResponseError(
             $uuid,
             0,
             [
-                'user' => 4,
-                'absent_users' => [4],
+                'user' => 21,
+                'absent_users' => [21],
                 'error' => 'absent_users',
             ]
         );
@@ -44,7 +43,7 @@ class WithdrawActionTest extends FunctionalCase
     public function testBasicWithdraw()
     {
         $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['action' => 'enroll', 'user' => 3, 'amount' => '1000.00']);
+        $request = $this->createRequest($uuid, 0, ['action' => 'enroll', 'user' => 20, 'amount' => '1000.00']);
 
         $this->sendMessage($request->getBlob());
 
@@ -71,44 +70,19 @@ class WithdrawActionTest extends FunctionalCase
         $this->assertExpectedResponse($response);
     }
 
-    public function testWithdrawTooMuch()
-    {
-        $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['amount' => '1000000000.00']);
-
-        $this->expectException(MessageParseException::class);
-
-        $this->sendMessage($request->getBlob());
-    }
-
-    /**
-     * @depends testWithdrawMore
-     * @depends testWithdrawTooMuch
-     */
-    public function testCheckEverythingOk()
-    {
-        $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['amount' => '0.00']);
-        $response = $this->createResponse($uuid, 0, ['amount' => '0.00', 'balance' => '976.00']);
-
-        $this->sendMessage($request->getBlob());
-
-        $this->assertExpectedResponse($response);
-    }
-
     /**
      * @depends testBasicWithdraw
      */
-    public function testWithdrawOverflow()
+    public function testWithdrawFromInsufficientFundsUser()
     {
         $uuid = openssl_random_pseudo_bytes(16);
-        $request = $this->createRequest($uuid, 0, ['amount' => '999999999.99']);
+        $request = $this->createRequest($uuid, 0, ['amount' => '10000.00']);
         $response = $this->createResponseError(
             $uuid,
             0,
             [
-                'amount' => '999999999.99',
-                'balances' => [['user' => 3, 'balance' => '976.00']],
+                'amount' => '10000.00',
+                'balances' => [['user' => 20, 'balance' => '976.00']],
                 'error' => 'insufficient_funds'
             ]
         );
@@ -120,9 +94,9 @@ class WithdrawActionTest extends FunctionalCase
 
     /**
      * @depends testWithdrawMore
-     * @depends testWithdrawOverflow
+     * @depends testWithdrawFromInsufficientFundsUser
      */
-    public function testCheckEverythingOk2()
+    public function testNothingIsChangedAfterFail()
     {
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['amount' => '0.00']);

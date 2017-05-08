@@ -9,6 +9,6 @@
 namespace TriAn\IqoTest\core\exception;
 
 
-class MessageParseException extends \RuntimeException
+class MessageValidationException extends \UnexpectedValueException
 {
 }
