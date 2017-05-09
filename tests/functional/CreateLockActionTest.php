@@ -23,9 +23,6 @@ class CreateLockActionTest extends FunctionalCase
 
     public function testAbsentUserLock()
     {
-        //TODO
-        $this->markTestSkipped("Fix order of rows creation to workaround constraints violations");
-
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['user' => 41]);
         $response = $this->createResponseError(

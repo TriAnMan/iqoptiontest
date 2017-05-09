@@ -61,6 +61,7 @@ class Lock
      */
     public static function create(Transaction $transaction, $uuid, $user, $amount)
     {
+        $balance = Balance::withdraw($transaction, $user, $amount);
         $transaction->execute(
             'INSERT INTO `lock` 
                 (operation_uuid, user, amount) 
@@ -73,7 +74,6 @@ class Lock
                 ':amount' => $amount,
             ]
         );
-        $balance = Balance::withdraw($transaction, $user, $amount);
         return $balance;
     }
 
