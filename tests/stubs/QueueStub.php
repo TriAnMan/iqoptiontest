@@ -13,6 +13,9 @@ use TriAn\IqoTest\core\Queue;
 
 class QueueStub extends Queue
 {
+    /**
+     * @var string[]
+     */
     protected static $responseStack = [];
 
     /** @noinspection PhpMissingParentConstructorInspection */

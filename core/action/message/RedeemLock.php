@@ -19,7 +19,10 @@ class RedeemLock extends Base
     public function process(Message $request, Transaction $transaction)
     {
         $action = $request->getBody();
-        $action->amount = Lock::redeem($transaction, $action->operationUuid)->amount;
+        list($balance, $operation) = Lock::redeem($transaction, hex2bin($action->operationUuid));
+        $action->user = $balance->user;
+        $action->balance = $balance->balance;
+        $action->amount = $operation->amount;
         $action->result = 'ok';
         return (new Message($request->uuid, 0))->setBody($action);
     }

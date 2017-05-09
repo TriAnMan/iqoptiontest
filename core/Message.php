@@ -81,6 +81,9 @@ class Message
     {
         $this->body = $body;
         $this->rawBody = json_encode($this->body);
+        if (false === $this->rawBody) {
+            throw new MessageParseException(json_last_error_msg());
+        }
         return $this;
     }
 

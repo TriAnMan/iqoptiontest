@@ -20,7 +20,7 @@ class CreateLock extends Base
     {
         $action = $request->getBody();
         $action->balance = Lock::create($transaction, $request->uuid, $action->user, $action->amount)->balance;
-        $action->operationUuid = $request->uuid;
+        $action->operationUuid = bin2hex($request->uuid);
         $action->result = 'ok';
         return (new Message($request->uuid, 0))->setBody($action);
     }

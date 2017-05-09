@@ -15,7 +15,7 @@ use TriAn\IqoTest\core\exception\LockNotFound;
 
 /**
  * Class Lock
- * @property int $operation_uuid
+ * @property string $operation_uuid
  * @property int $user
  * @property string $amount
  */
@@ -28,9 +28,6 @@ class Lock
      */
     public function __construct()
     {
-        if (isset($this->operation_uuid)) {
-            $this->operation_uuid = intval($this->operation_uuid);
-        }
         if (isset($this->user)) {
             $this->user = intval($this->user);
         }
@@ -83,21 +80,22 @@ class Lock
     /**
      * @param Transaction $transaction
      * @param string $operationUuid
-     * @return Lock
+     * @return array [Balance, Operation]
      */
     public static function redeem(Transaction $transaction, $operationUuid)
     {
-        $operation = static::find($transaction, $operationUuid);
+        $lock = static::find($transaction, $operationUuid);
         $deleted = $transaction->execute(
             'DELETE FROM `lock` WHERE operation_uuid = :operation_uuid',
             [
-                ':operation_uuid' => $operation->operation_uuid,
+                ':operation_uuid' => $lock->operation_uuid,
             ]
         )->rowCount();
         if ($deleted !== 1) {
             throw new LockNotFound();
         }
-        return $operation;
+        $balance = Balance::find($transaction, $lock->user);
+        return [$balance, $lock];
     }
 
     /**
@@ -107,17 +105,17 @@ class Lock
      */
     public static function cancel(Transaction $transaction, $operationUuid)
     {
-        $operation = static::find($transaction, $operationUuid);
+        $lock = static::find($transaction, $operationUuid);
         $deleted = $transaction->execute(
             'DELETE FROM `lock` WHERE operation_uuid = :operation_uuid',
             [
-                ':operation_uuid' => $operation->operation_uuid,
+                ':operation_uuid' => $lock->operation_uuid,
             ]
         )->rowCount();
         if ($deleted !== 1) {
             throw new LockNotFound();
         }
-        $balance = Balance::enroll($transaction, $operation->user, $operation->amount);
-        return [$balance, $operation];
+        $balance = Balance::enroll($transaction, $lock->user, $lock->amount);
+        return [$balance, $lock];
     }
 }
