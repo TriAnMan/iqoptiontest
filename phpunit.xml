@@ -9,4 +9,13 @@
             <directory>tests/functional</directory>
         </testsuite>
     </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">core</directory>
+            <exclude>
+                <file>core/autoload.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>
