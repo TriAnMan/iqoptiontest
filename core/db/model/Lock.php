@@ -38,7 +38,7 @@ class Lock
      * @param string $operationUuid
      * @return Lock
      */
-    protected static function find(Transaction $transaction, $operationUuid)
+    protected static function findForUpdate(Transaction $transaction, $operationUuid)
     {
         $lock = $transaction->execute(
             'SELECT * FROM `lock` WHERE operation_uuid = :operation_uuid FOR UPDATE',
@@ -84,7 +84,7 @@ class Lock
      */
     public static function redeem(Transaction $transaction, $operationUuid)
     {
-        $lock = static::find($transaction, $operationUuid);
+        $lock = static::findForUpdate($transaction, $operationUuid);
         $deleted = $transaction->execute(
             'DELETE FROM `lock` WHERE operation_uuid = :operation_uuid',
             [
@@ -105,7 +105,7 @@ class Lock
      */
     public static function cancel(Transaction $transaction, $operationUuid)
     {
-        $lock = static::find($transaction, $operationUuid);
+        $lock = static::findForUpdate($transaction, $operationUuid);
         $deleted = $transaction->execute(
             'DELETE FROM `lock` WHERE operation_uuid = :operation_uuid',
             [

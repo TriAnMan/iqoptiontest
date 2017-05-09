@@ -10,6 +10,8 @@ namespace TriAn\IqoTest\core\db\model;
 
 
 use TriAn\IqoTest\core\db\Transaction;
+use TriAn\IqoTest\core\exception\managed\ProcessedDuplicate;
+use TriAn\IqoTest\core\exception\MessageHashMismatch;
 use TriAn\IqoTest\core\Message;
 
 /**
@@ -44,7 +46,7 @@ class Operation
      * @param string $uuid
      * @return Operation
      */
-    public static function find(Transaction $transaction, $uuid)
+    protected static function findForUpdate(Transaction $transaction, $uuid)
     {
         return $transaction->execute(
             'SELECT * FROM operation WHERE uuid = :uuid FOR UPDATE',
@@ -77,4 +79,29 @@ class Operation
             ]
         );
     }
+
+    /**
+     * @param Message $request
+     * @param Transaction $transaction
+     * @return Operation
+     */
+    public static function checkDuplicate(Message $request, Transaction $transaction)
+    {
+        $duplicate = Operation::findForUpdate($transaction, $request->uuid);
+
+        if (!$duplicate) {
+            return null;
+        }
+
+        if (md5($request->getRawBody(), true) !== $duplicate->input_md5) {
+            throw new MessageHashMismatch('Message ' . bin2hex($request->uuid) . ' duplicate has a different body');
+        }
+
+        if ($request->dNum !== $duplicate->input_dup_num) {
+            throw new ProcessedDuplicate();
+        }
+
+        return $duplicate;
+    }
+
 }

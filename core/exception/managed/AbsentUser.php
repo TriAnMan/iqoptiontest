@@ -13,7 +13,10 @@ use TriAn\IqoTest\core\Message;
 
 class AbsentUser extends ReportableException
 {
-    protected $users;
+    /**
+     * @var int[]
+     */
+    protected $users = [];
 
     /**
      * @param int[] $users
@@ -24,11 +27,24 @@ class AbsentUser extends ReportableException
         parent::__construct();
     }
 
+    /**
+     * @param int $user
+     * @return AbsentUser
+     */
     public function appendUser($user)
     {
         if (!in_array($user, $this->users)) {
            $this->users[] = $user;
         }
+        return $this;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 
     /**

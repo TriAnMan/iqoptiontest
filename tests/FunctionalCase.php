@@ -92,7 +92,6 @@ class FunctionalCase extends \PHPUnit_Framework_TestCase
      * @param $dNum
      * @param array $body
      * @param array $bodyOverride
-     * @param bool $resetBody
      * @return Message
      */
     protected function createMessage($uuid, $dNum, array $body, array $bodyOverride)

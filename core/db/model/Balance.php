@@ -63,7 +63,7 @@ class Balance
         } catch (DBException $ex) {
             if ($ex->getCode() == 22003) {
                 //User has insufficient funds
-                throw new BalanceShortage(static::find($transaction, $user));
+                throw new BalanceShortage([static::find($transaction, $user)]);
             }
             throw $ex;
         }
@@ -124,16 +124,23 @@ class Balance
 
         $balances = [];
 
-        /**
-         * Prevent a deadlock here
-         */
-        if ($fromUser < $toUser) {
+        try {
             $balances[] = static::withdraw($transaction, $fromUser, $amount);
             $balances[] = static::enroll($transaction, $toUser, $amount);
-            return $balances;
+        } catch (BalanceShortage $ex) {
+            // Append balance of another user
+            $ex->appendBalance(Balance::find($transaction, $toUser));
+            throw $ex;
+        } catch (AbsentUser $ex) {
+            // Find another absent users
+            $absentUsers = array_diff([$fromUser, $toUser], $ex->getUsers());
+            foreach ($absentUsers as $user) {
+                if (!static::find($transaction, $user)) {
+                    $ex->appendUser($user);
+                }
+            }
+            throw $ex;
         }
-        $balances[] = static::enroll($transaction, $toUser, $amount);
-        $balances[] = static::withdraw($transaction, $fromUser, $amount);
         return $balances;
     }
 

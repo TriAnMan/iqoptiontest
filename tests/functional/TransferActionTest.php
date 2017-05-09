@@ -10,6 +10,7 @@ namespace TriAn\IqoTest\tests\functional;
 
 
 use TriAn\IqoTest\core\exception\DBException;
+use TriAn\IqoTest\core\exception\TransferException;
 use TriAn\IqoTest\tests\FunctionalCase;
 
 class TransferActionTest extends FunctionalCase
@@ -57,8 +58,8 @@ class TransferActionTest extends FunctionalCase
             'fromUser' => 31,
             'toUser' => 30,
             'balances' => [
-                ['user' => 30, 'balance' => '1000.00'],
                 ['user' => 31, 'balance' => '1000.00'],
+                ['user' => 30, 'balance' => '1000.00'],
             ]
         ]);
 
@@ -116,9 +117,6 @@ class TransferActionTest extends FunctionalCase
      */
     public function testTransferBetweenAbsentUsers()
     {
-        //TODO
-        $this->markTestSkipped("Fix lack of absence of user with greater ID");
-
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['fromUser' => 34, 'toUser' => 35]);
         $response = $this->createResponseError(
@@ -159,11 +157,36 @@ class TransferActionTest extends FunctionalCase
     /**
      * @depends testReverseTransfer
      */
+    public function testTransferBetweenEqualAccounts()
+    {
+        $uuid = openssl_random_pseudo_bytes(16);
+        $request = $this->createRequest($uuid, 0, ['toUser' => 30, 'amount' => '12.00']);
+
+        $this->expectException(TransferException::class);
+        $this->expectExceptionMessage('Can\'t transfer money between equal accounts');
+
+        $this->sendMessage($request->getBlob());
+    }
+
+    /**
+     * @depends testReverseTransfer
+     */
+    public function testTransferBetweenEqualAbsentAccounts()
+    {
+        $uuid = openssl_random_pseudo_bytes(16);
+        $request = $this->createRequest($uuid, 0, ['fromUser' => 37, 'toUser' => 37, 'amount' => '12.00']);
+
+        $this->expectException(TransferException::class);
+        $this->expectExceptionMessage('Can\'t transfer money between equal accounts');
+
+        $this->sendMessage($request->getBlob());
+    }
+
+    /**
+     * @depends testReverseTransfer
+     */
     public function testTransferFromUserWithInsufficientFunds()
     {
-        //TODO
-        $this->markTestSkipped("Fix lack of 'toUser's balance");
-
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['amount' => '10000.00']);
         $response = $this->createResponseError($uuid, 0, [
@@ -183,6 +206,30 @@ class TransferActionTest extends FunctionalCase
     /**
      * @depends testReverseTransfer
      */
+    public function testReverseTransferFromUserWithInsufficientFunds()
+    {
+        $uuid = openssl_random_pseudo_bytes(16);
+        $request = $this->createRequest($uuid, 0, ['fromUser' => 31, 'toUser' => 30, 'amount' => '10000.00']);
+        $response = $this->createResponseError($uuid, 0, [
+            'fromUser' => 31,
+            'toUser' => 30,
+            'amount' => '10000.00',
+            'balances' => [
+                ['user' => 31, 'balance' => '1000.00'],
+                ['user' => 30, 'balance' => '1000.00'],
+            ],
+            'error' => 'insufficient_funds',
+        ]);
+
+        $this->sendMessage($request->getBlob());
+
+        $this->assertExpectedResponse($response);
+    }
+
+    /**
+     * @depends testReverseTransfer
+     * @depends testTransferBetweenEqualAccounts
+     */
     public function testNothingIsChangedAfterFails()
     {
         $uuid = openssl_random_pseudo_bytes(16);
@@ -194,7 +241,6 @@ class TransferActionTest extends FunctionalCase
                 ['user' => 31, 'balance' => '1000.00'],
             ]
         ]);
-
 
         $this->sendMessage($request->getBlob());
 

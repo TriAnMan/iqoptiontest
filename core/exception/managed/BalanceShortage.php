@@ -13,12 +13,26 @@ use TriAn\IqoTest\core\Message;
 
 class BalanceShortage extends ReportableException
 {
-    protected $balance;
+    /**
+     * @var Balance[]
+     */
+    protected $balances = [];
 
-    public function __construct(Balance $balance)
+    /**
+     * @param Balance[] $balances
+     */
+    public function __construct(array $balances)
     {
-        $this->balance = $balance;
+        $this->balances = $balances;
         parent::__construct();
+    }
+
+    public function appendBalance(Balance $balance)
+    {
+        if (!in_array($balance, $this->balances)) {
+            $this->balances[] = $balance;
+        }
+        return $this;
     }
 
     /**
@@ -28,7 +42,7 @@ class BalanceShortage extends ReportableException
     public function generateResponse(Message $request)
     {
         $response = $request->getBody();
-        $response->balances = [$this->balance];
+        $response->balances = $this->balances;
         $response->error = 'insufficient_funds';
         return $response;
     }
