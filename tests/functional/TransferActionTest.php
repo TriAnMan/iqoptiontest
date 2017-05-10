@@ -9,7 +9,7 @@
 namespace TriAn\IqoTest\tests\functional;
 
 
-use TriAn\IqoTest\core\exception\DBException;
+use PDOException;
 use TriAn\IqoTest\core\exception\TransferException;
 use TriAn\IqoTest\tests\FunctionalCase;
 
@@ -147,9 +147,9 @@ class TransferActionTest extends FunctionalCase
         $uuid = openssl_random_pseudo_bytes(16);
         $request = $this->createRequest($uuid, 0, ['fromUser' => 36, 'amount' => '999999999.99']);
 
-        $this->expectException(DBException::class);
+        $this->expectException(PDOException::class);
         $this->expectExceptionCode(22003);
-        $this->expectExceptionMessage("ANSI: 22003, driver: 1264 - Out of range value for column 'balance' at row 1");
+        $this->expectExceptionMessage("SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'balance' at row 1");
 
         $this->sendMessage($request->getBlob());
     }

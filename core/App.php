@@ -9,6 +9,7 @@
 namespace TriAn\IqoTest\core;
 
 
+use PDO;
 use PhpAmqpLib\Message\AMQPMessage;
 use TriAn\IqoTest\core\db\DAO;
 
@@ -55,6 +56,7 @@ class App
     {
         App::info('Connect to a DB');
         $this->db = App::createObject($this->config['db']['class'], $this->config['db']['param']);
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->db->exec('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
 
         App::info('Init an event queue');

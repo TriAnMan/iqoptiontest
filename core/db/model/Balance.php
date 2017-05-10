@@ -9,11 +9,11 @@
 namespace TriAn\IqoTest\core\db\model;
 
 
+use PDOException;
 use TriAn\IqoTest\core\db\Transaction;
 use TriAn\IqoTest\core\exception\managed\AbsentUser;
 use TriAn\IqoTest\core\exception\managed\BalanceShortage;
 use TriAn\IqoTest\core\exception\TransferException;
-use TriAn\IqoTest\core\exception\DBException;
 
 /**
  * Class Balance
@@ -60,7 +60,7 @@ class Balance
                 'UPDATE balance SET balance = balance - :amount WHERE user = :user',
                 [':amount' => $amount, ':user' => $user]
             );
-        } catch (DBException $ex) {
+        } catch (PDOException $ex) {
             if ($ex->getCode() == 22003) {
                 //User has insufficient funds
                 throw new BalanceShortage([static::find($transaction, $user)]);

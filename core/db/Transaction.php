@@ -9,7 +9,6 @@
 namespace TriAn\IqoTest\core\db;
 
 
-use TriAn\IqoTest\core\exception\DBException;
 use TriAn\IqoTest\core\exception\TransactionException;
 
 class Transaction
@@ -24,9 +23,7 @@ class Transaction
     public function __construct(DAO $connection)
     {
         $this->connection = $connection;
-        if (false === $this->connection->beginTransaction()) {
-            throw new DBException(...$this->connection->errorInfo());
-        }
+        $this->connection->beginTransaction();
     }
 
     /**
@@ -43,9 +40,7 @@ class Transaction
         }
 
         $statement = $this->connection->cacheQuery($query);
-        if (false === $statement->execute($parameters)) {
-            throw new DBException(...$statement->errorInfo());
-        }
+        $statement->execute($parameters);
 
         return $statement;
     }
@@ -55,9 +50,7 @@ class Transaction
         if ($this->ended) {
             return;
         }
-        if (false === $this->connection->commit()) {
-            throw new DBException(...$this->connection->errorInfo());
-        }
+        $this->connection->commit();
         $this->ended = true;
     }
 
@@ -66,9 +59,7 @@ class Transaction
         if ($this->ended) {
             return;
         }
-        if (false === $this->connection->rollBack()) {
-            throw new DBException(...$this->connection->errorInfo());
-        }
+        $this->connection->rollBack();
         $this->ended = true;
     }
 }
